@@ -107,7 +107,7 @@ class StoryActivity : BaseActivity() {
             }
 
             override fun onPostExecute(result: Unit?) {
-                progressView.visibility = Util.setVisibility(false)
+                progressView.visibility = View.GONE
             }
         }
 
@@ -165,9 +165,9 @@ class StoryActivity : BaseActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when(item?.itemId) {
+        return when (item?.itemId) {
             R.id.refresh -> {
-                progressView.visibility = Util.setVisibility(true)
+                progressView.visibility = View.VISIBLE
                 loadUrlAndComments()
                 return true
             }
