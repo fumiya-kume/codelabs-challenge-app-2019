@@ -15,10 +15,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import com.squareup.moshi.Types
-import droidkaigi.github.io.challenge2019.data.api.HackerNewsApi
-import droidkaigi.github.io.challenge2019.data.api.response.Item
-import droidkaigi.github.io.challenge2019.data.db.ArticlePreferences
-import droidkaigi.github.io.challenge2019.data.db.ArticlePreferences.Companion.saveArticleIds
+import kuxu.nagoya.data.api.HackerNewsApi
+import kuxu.nagoya.data.api.response.Item
+import kuxu.nagoya.data.db.ArticlePreferences
+import kuxu.nagoya.data.db.ArticlePreferences.Companion.saveArticleIds
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,12 +38,12 @@ class MainActivity : BaseActivity() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private lateinit var storyAdapter: StoryAdapter
-    private lateinit var hackerNewsApi: HackerNewsApi
+    private lateinit var hackerNewsApi: kuxu.nagoya.data.api.HackerNewsApi
 
-    private var getStoriesTask: AsyncTask<Long, Unit, List<Item?>>? = null
-    private val itemJsonAdapter = moshi.adapter(Item::class.java)
+    private var getStoriesTask: AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>? = null
+    private val itemJsonAdapter = moshi.adapter(kuxu.nagoya.data.api.response.Item::class.java)
     private val itemsJsonAdapter =
-        moshi.adapter<List<Item?>>(Types.newParameterizedType(List::class.java, Item::class.java))
+        moshi.adapter<List<kuxu.nagoya.data.api.response.Item?>>(Types.newParameterizedType(List::class.java, kuxu.nagoya.data.api.response.Item::class.java))
 
 
     override fun getContentView(): Int {
@@ -58,7 +58,7 @@ class MainActivity : BaseActivity() {
 
         val retrofit = createRetrofit("https://hacker-news.firebaseio.com/v0/")
 
-        hackerNewsApi = retrofit.create(HackerNewsApi::class.java)
+        hackerNewsApi = retrofit.create(kuxu.nagoya.data.api.HackerNewsApi::class.java)
 
         val itemDecoration = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
         recyclerView.addItemDecoration(itemDecoration)
@@ -78,8 +78,8 @@ class MainActivity : BaseActivity() {
                         clipboard.primaryClip = ClipData.newPlainText("url", item.url)
                     }
                     R.id.refresh -> {
-                        hackerNewsApi.getItem(item.id).enqueue(object : Callback<Item> {
-                            override fun onResponse(call: Call<Item>, response: Response<Item>) {
+                        hackerNewsApi.getItem(item.id).enqueue(object : Callback<kuxu.nagoya.data.api.response.Item> {
+                            override fun onResponse(call: Call<kuxu.nagoya.data.api.response.Item>, response: Response<kuxu.nagoya.data.api.response.Item>) {
                                 response.body()?.let { newItem ->
                                     val index = storyAdapter.stories.indexOf(item)
                                     if (index == -1) return
@@ -87,20 +87,20 @@ class MainActivity : BaseActivity() {
                                     storyAdapter.stories[index] = newItem
                                     runOnUiThread {
                                         storyAdapter.alreadyReadStories =
-                                            ArticlePreferences.getArticleIds(this@MainActivity)
+                                            kuxu.nagoya.data.db.ArticlePreferences.getArticleIds(this@MainActivity)
                                         storyAdapter.notifyItemChanged(index)
                                     }
                                 }
                             }
 
-                            override fun onFailure(call: Call<Item>, t: Throwable) {
+                            override fun onFailure(call: Call<kuxu.nagoya.data.api.response.Item>, t: Throwable) {
                                 showError(t)
                             }
                         })
                     }
                 }
             },
-            alreadyReadStories = ArticlePreferences.getArticleIds(this)
+            alreadyReadStories = kuxu.nagoya.data.db.ArticlePreferences.getArticleIds(this)
         )
         recyclerView.adapter = storyAdapter
 
@@ -114,7 +114,7 @@ class MainActivity : BaseActivity() {
 
         if (savedStories != null) {
             storyAdapter.stories = savedStories.toMutableList()
-            storyAdapter.alreadyReadStories = ArticlePreferences.getArticleIds(this@MainActivity)
+            storyAdapter.alreadyReadStories = kuxu.nagoya.data.db.ArticlePreferences.getArticleIds(this@MainActivity)
             storyAdapter.notifyDataSetChanged()
             return
         }
@@ -130,21 +130,21 @@ class MainActivity : BaseActivity() {
                 if (!response.isSuccessful) return
 
                 response.body()?.let { itemIds ->
-                    getStoriesTask = @SuppressLint("StaticFieldLeak") object : AsyncTask<Long, Unit, List<Item?>>() {
+                    getStoriesTask = @SuppressLint("StaticFieldLeak") object : AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>() {
 
-                        override fun doInBackground(vararg itemIds: Long?): List<Item?> {
+                        override fun doInBackground(vararg itemIds: Long?): List<kuxu.nagoya.data.api.response.Item?> {
                             val ids = itemIds.mapNotNull { it }
-                            val itemMap = ConcurrentHashMap<Long, Item?>()
+                            val itemMap = ConcurrentHashMap<Long, kuxu.nagoya.data.api.response.Item?>()
                             val latch = CountDownLatch(ids.size)
 
                             ids.forEach { id ->
-                                hackerNewsApi.getItem(id).enqueue(object : Callback<Item> {
-                                    override fun onResponse(call: Call<Item>, response: Response<Item>) {
+                                hackerNewsApi.getItem(id).enqueue(object : Callback<kuxu.nagoya.data.api.response.Item> {
+                                    override fun onResponse(call: Call<kuxu.nagoya.data.api.response.Item>, response: Response<kuxu.nagoya.data.api.response.Item>) {
                                         response.body()?.let { item -> itemMap[id] = item }
                                         latch.countDown()
                                     }
 
-                                    override fun onFailure(call: Call<Item>, t: Throwable) {
+                                    override fun onFailure(call: Call<kuxu.nagoya.data.api.response.Item>, t: Throwable) {
                                         showError(t)
                                         latch.countDown()
                                     }
@@ -161,11 +161,11 @@ class MainActivity : BaseActivity() {
                             return ids.map { itemMap[it] }
                         }
 
-                        override fun onPostExecute(items: List<Item?>) {
+                        override fun onPostExecute(items: List<kuxu.nagoya.data.api.response.Item?>) {
                             progressView.visibility = View.GONE
                             swipeRefreshLayout.isRefreshing = false
                             storyAdapter.stories = items.toMutableList()
-                            storyAdapter.alreadyReadStories = ArticlePreferences.getArticleIds(this@MainActivity)
+                            storyAdapter.alreadyReadStories = kuxu.nagoya.data.db.ArticlePreferences.getArticleIds(this@MainActivity)
                             storyAdapter.notifyDataSetChanged()
                         }
                     }
@@ -186,7 +186,7 @@ class MainActivity : BaseActivity() {
                 data?.getLongExtra(StoryActivity.READ_ARTICLE_ID, 0L)?.let { id ->
                     if (id != 0L) {
                         saveArticleIds(this, id.toString())
-                        storyAdapter.alreadyReadStories = ArticlePreferences.getArticleIds(this)
+                        storyAdapter.alreadyReadStories = kuxu.nagoya.data.db.ArticlePreferences.getArticleIds(this)
                         storyAdapter.notifyDataSetChanged()
                     }
                 }

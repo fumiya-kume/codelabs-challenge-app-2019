@@ -1,8 +1,8 @@
-package droidkaigi.github.io.challenge2019.data.repository.mapper
+package kuxu.nagoya.data.repository.mapper
 
-import droidkaigi.github.io.challenge2019.data.api.response.Item
-import droidkaigi.github.io.challenge2019.data.repository.entity.Comment
-import droidkaigi.github.io.challenge2019.data.repository.entity.Story
+import kuxu.nagoya.data.api.response.Item
+import kuxu.nagoya.data.repository.entity.Comment
+import kuxu.nagoya.data.repository.entity.Story
 import java.util.*
 
 // TODO: 2.Implement mapper functions

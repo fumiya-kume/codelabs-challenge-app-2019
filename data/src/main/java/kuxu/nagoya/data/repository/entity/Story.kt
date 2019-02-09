@@ -1,4 +1,4 @@
-package droidkaigi.github.io.challenge2019.data.repository.entity
+package kuxu.nagoya.data.repository.entity
 
 import com.squareup.moshi.JsonClass
 import java.util.*

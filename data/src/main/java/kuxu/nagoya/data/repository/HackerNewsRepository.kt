@@ -1,13 +1,13 @@
-package droidkaigi.github.io.challenge2019.data.repository
+package kuxu.nagoya.data.repository
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.os.AsyncTask
-import droidkaigi.github.io.challenge2019.data.api.HackerNewsApi
-import droidkaigi.github.io.challenge2019.data.api.response.Item
-import droidkaigi.github.io.challenge2019.data.repository.entity.Comment
-import droidkaigi.github.io.challenge2019.data.repository.entity.Story
-import droidkaigi.github.io.challenge2019.data.repository.mapper.toComment
+import kuxu.nagoya.data.api.HackerNewsApi
+import kuxu.nagoya.data.api.response.Item
+import kuxu.nagoya.data.repository.entity.Comment
+import kuxu.nagoya.data.repository.entity.Story
+import kuxu.nagoya.data.repository.mapper.toComment
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

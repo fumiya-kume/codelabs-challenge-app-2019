@@ -15,8 +15,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import com.squareup.moshi.Types
-import droidkaigi.github.io.challenge2019.data.api.HackerNewsApi
-import droidkaigi.github.io.challenge2019.data.api.response.Item
+import kuxu.nagoya.data.api.HackerNewsApi
+import kuxu.nagoya.data.api.response.Item
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,15 +38,15 @@ class StoryActivity : BaseActivity() {
     private lateinit var progressView: ProgressBar
 
     private lateinit var commentAdapter: CommentAdapter
-    private lateinit var hackerNewsApi: HackerNewsApi
+    private lateinit var hackerNewsApi: kuxu.nagoya.data.api.HackerNewsApi
 
-    private var getCommentsTask: AsyncTask<Long, Unit, List<Item?>>? = null
+    private var getCommentsTask: AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>? = null
     private var hideProgressTask: AsyncTask<Unit, Unit, Unit>? = null
-    private val itemJsonAdapter = moshi.adapter(Item::class.java)
+    private val itemJsonAdapter = moshi.adapter(kuxu.nagoya.data.api.response.Item::class.java)
     private val itemsJsonAdapter =
-        moshi.adapter<List<Item?>>(Types.newParameterizedType(List::class.java, Item::class.java))
+        moshi.adapter<List<kuxu.nagoya.data.api.response.Item?>>(Types.newParameterizedType(List::class.java, kuxu.nagoya.data.api.response.Item::class.java))
 
-    private var item: Item? = null
+    private var item: kuxu.nagoya.data.api.response.Item? = null
 
     override fun getContentView(): Int {
         return R.layout.activity_story
@@ -64,7 +64,7 @@ class StoryActivity : BaseActivity() {
 
         val retrofit = createRetrofit("https://hacker-news.firebaseio.com/v0/")
 
-        hackerNewsApi = retrofit.create(HackerNewsApi::class.java)
+        hackerNewsApi = retrofit.create(kuxu.nagoya.data.api.HackerNewsApi::class.java)
 
         recyclerView.isNestedScrollingEnabled = false
         val itemDecoration = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
@@ -125,20 +125,20 @@ class StoryActivity : BaseActivity() {
         }
         webView.loadUrl(item!!.url)
 
-        getCommentsTask = @SuppressLint("StaticFieldLeak") object : AsyncTask<Long, Unit, List<Item?>>() {
-            override fun doInBackground(vararg itemIds: Long?): List<Item?> {
+        getCommentsTask = @SuppressLint("StaticFieldLeak") object : AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>() {
+            override fun doInBackground(vararg itemIds: Long?): List<kuxu.nagoya.data.api.response.Item?> {
                 val ids = itemIds.mapNotNull { it }
-                val itemMap = ConcurrentHashMap<Long, Item?>()
+                val itemMap = ConcurrentHashMap<Long, kuxu.nagoya.data.api.response.Item?>()
                 val latch = CountDownLatch(ids.size)
 
                 ids.forEach { id ->
-                    hackerNewsApi.getItem(id).enqueue(object : Callback<Item> {
-                        override fun onResponse(call: Call<Item>, response: Response<Item>) {
+                    hackerNewsApi.getItem(id).enqueue(object : Callback<kuxu.nagoya.data.api.response.Item> {
+                        override fun onResponse(call: Call<kuxu.nagoya.data.api.response.Item>, response: Response<kuxu.nagoya.data.api.response.Item>) {
                             response.body()?.let { item -> itemMap[id] = item }
                             latch.countDown()
                         }
 
-                        override fun onFailure(call: Call<Item>, t: Throwable) {
+                        override fun onFailure(call: Call<kuxu.nagoya.data.api.response.Item>, t: Throwable) {
                             latch.countDown()
                             showError(t)
                         }
@@ -154,7 +154,7 @@ class StoryActivity : BaseActivity() {
                 return ids.map { itemMap[it] }
             }
 
-            override fun onPostExecute(items: List<Item?>) {
+            override fun onPostExecute(items: List<kuxu.nagoya.data.api.response.Item?>) {
                 progressLatch.countDown()
                 commentAdapter.comments = items
                 commentAdapter.notifyDataSetChanged()
