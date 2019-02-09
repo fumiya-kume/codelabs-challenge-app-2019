@@ -1,2 +1,8 @@
-include(":app")
-include(":data")
+val rootModuleList = listOf(
+    ":app",
+    ":data"
+)
+
+rootModuleList.forEach {
+    include(it)
+}
