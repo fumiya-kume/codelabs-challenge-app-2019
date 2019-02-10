@@ -15,7 +15,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import com.squareup.moshi.Types
-import kuxu.nagoya.data.api.HackerNewsApi
 import kuxu.nagoya.data.api.response.Item
 import retrofit2.Call
 import retrofit2.Callback
@@ -44,7 +43,12 @@ class StoryActivity : BaseActivity() {
     private var hideProgressTask: AsyncTask<Unit, Unit, Unit>? = null
     private val itemJsonAdapter = moshi.adapter(kuxu.nagoya.data.api.response.Item::class.java)
     private val itemsJsonAdapter =
-        moshi.adapter<List<kuxu.nagoya.data.api.response.Item?>>(Types.newParameterizedType(List::class.java, kuxu.nagoya.data.api.response.Item::class.java))
+        moshi.adapter<List<kuxu.nagoya.data.api.response.Item?>>(
+            Types.newParameterizedType(
+                List::class.java,
+                kuxu.nagoya.data.api.response.Item::class.java
+            )
+        )
 
     private var item: kuxu.nagoya.data.api.response.Item? = null
 
@@ -125,7 +129,8 @@ class StoryActivity : BaseActivity() {
         }
         webView.loadUrl(item!!.url)
 
-        getCommentsTask = @SuppressLint("StaticFieldLeak") object : AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>() {
+        getCommentsTask = @SuppressLint("StaticFieldLeak") object :
+            AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>() {
             override fun doInBackground(vararg itemIds: Long?): List<kuxu.nagoya.data.api.response.Item?> {
                 val ids = itemIds.mapNotNull { it }
                 val itemMap = ConcurrentHashMap<Long, kuxu.nagoya.data.api.response.Item?>()
@@ -133,7 +138,10 @@ class StoryActivity : BaseActivity() {
 
                 ids.forEach { id ->
                     hackerNewsApi.getItem(id).enqueue(object : Callback<kuxu.nagoya.data.api.response.Item> {
-                        override fun onResponse(call: Call<kuxu.nagoya.data.api.response.Item>, response: Response<kuxu.nagoya.data.api.response.Item>) {
+                        override fun onResponse(
+                            call: Call<kuxu.nagoya.data.api.response.Item>,
+                            response: Response<kuxu.nagoya.data.api.response.Item>
+                        ) {
                             response.body()?.let { item -> itemMap[id] = item }
                             latch.countDown()
                         }

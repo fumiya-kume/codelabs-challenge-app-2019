@@ -4,7 +4,6 @@ import android.support.v7.widget.PopupMenu
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import kuxu.nagoya.data.api.response.Item
 import droidkaigi.github.io.challenge2019.databinding.ItemStoryBinding
 
 
@@ -31,7 +30,7 @@ class StoryAdapter(
 
         if (item != null) {
             holder.binding.alreadyRead = false
-            alreadyReadStories.forEach {id ->
+            alreadyReadStories.forEach { id ->
                 if (id.toLong() == item.id) {
                     holder.binding.alreadyRead = true
                 }

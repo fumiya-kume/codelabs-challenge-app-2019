@@ -15,9 +15,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import com.squareup.moshi.Types
-import kuxu.nagoya.data.api.HackerNewsApi
 import kuxu.nagoya.data.api.response.Item
-import kuxu.nagoya.data.db.ArticlePreferences
 import kuxu.nagoya.data.db.ArticlePreferences.Companion.saveArticleIds
 import retrofit2.Call
 import retrofit2.Callback
@@ -43,7 +41,12 @@ class MainActivity : BaseActivity() {
     private var getStoriesTask: AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>? = null
     private val itemJsonAdapter = moshi.adapter(kuxu.nagoya.data.api.response.Item::class.java)
     private val itemsJsonAdapter =
-        moshi.adapter<List<kuxu.nagoya.data.api.response.Item?>>(Types.newParameterizedType(List::class.java, kuxu.nagoya.data.api.response.Item::class.java))
+        moshi.adapter<List<kuxu.nagoya.data.api.response.Item?>>(
+            Types.newParameterizedType(
+                List::class.java,
+                kuxu.nagoya.data.api.response.Item::class.java
+            )
+        )
 
 
     override fun getContentView(): Int {
@@ -79,7 +82,10 @@ class MainActivity : BaseActivity() {
                     }
                     R.id.refresh -> {
                         hackerNewsApi.getItem(item.id).enqueue(object : Callback<kuxu.nagoya.data.api.response.Item> {
-                            override fun onResponse(call: Call<kuxu.nagoya.data.api.response.Item>, response: Response<kuxu.nagoya.data.api.response.Item>) {
+                            override fun onResponse(
+                                call: Call<kuxu.nagoya.data.api.response.Item>,
+                                response: Response<kuxu.nagoya.data.api.response.Item>
+                            ) {
                                 response.body()?.let { newItem ->
                                     val index = storyAdapter.stories.indexOf(item)
                                     if (index == -1) return
@@ -130,7 +136,8 @@ class MainActivity : BaseActivity() {
                 if (!response.isSuccessful) return
 
                 response.body()?.let { itemIds ->
-                    getStoriesTask = @SuppressLint("StaticFieldLeak") object : AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>() {
+                    getStoriesTask = @SuppressLint("StaticFieldLeak") object :
+                        AsyncTask<Long, Unit, List<kuxu.nagoya.data.api.response.Item?>>() {
 
                         override fun doInBackground(vararg itemIds: Long?): List<kuxu.nagoya.data.api.response.Item?> {
                             val ids = itemIds.mapNotNull { it }
@@ -138,17 +145,24 @@ class MainActivity : BaseActivity() {
                             val latch = CountDownLatch(ids.size)
 
                             ids.forEach { id ->
-                                hackerNewsApi.getItem(id).enqueue(object : Callback<kuxu.nagoya.data.api.response.Item> {
-                                    override fun onResponse(call: Call<kuxu.nagoya.data.api.response.Item>, response: Response<kuxu.nagoya.data.api.response.Item>) {
-                                        response.body()?.let { item -> itemMap[id] = item }
-                                        latch.countDown()
-                                    }
+                                hackerNewsApi.getItem(id)
+                                    .enqueue(object : Callback<kuxu.nagoya.data.api.response.Item> {
+                                        override fun onResponse(
+                                            call: Call<kuxu.nagoya.data.api.response.Item>,
+                                            response: Response<kuxu.nagoya.data.api.response.Item>
+                                        ) {
+                                            response.body()?.let { item -> itemMap[id] = item }
+                                            latch.countDown()
+                                        }
 
-                                    override fun onFailure(call: Call<kuxu.nagoya.data.api.response.Item>, t: Throwable) {
-                                        showError(t)
-                                        latch.countDown()
-                                    }
-                                })
+                                        override fun onFailure(
+                                            call: Call<kuxu.nagoya.data.api.response.Item>,
+                                            t: Throwable
+                                        ) {
+                                            showError(t)
+                                            latch.countDown()
+                                        }
+                                    })
                             }
 
                             try {
@@ -165,7 +179,8 @@ class MainActivity : BaseActivity() {
                             progressView.visibility = View.GONE
                             swipeRefreshLayout.isRefreshing = false
                             storyAdapter.stories = items.toMutableList()
-                            storyAdapter.alreadyReadStories = kuxu.nagoya.data.db.ArticlePreferences.getArticleIds(this@MainActivity)
+                            storyAdapter.alreadyReadStories =
+                                kuxu.nagoya.data.db.ArticlePreferences.getArticleIds(this@MainActivity)
                             storyAdapter.notifyDataSetChanged()
                         }
                     }
