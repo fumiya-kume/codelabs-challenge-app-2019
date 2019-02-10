@@ -1,7 +1,7 @@
 package kuxu.nagoya.data.repository
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import android.os.AsyncTask
 import kuxu.nagoya.data.api.HackerNewsApi
 import kuxu.nagoya.data.api.response.Item
